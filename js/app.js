@@ -36,6 +36,9 @@ import fetch from "isomorphic-fetch"
 import DOM from 'react-dom'
 import React, {Component} from 'react'
 import Backbone from 'bbfire'
+import CutiesView from "./cutiesView"
+import FavesView from "./favesView"
+
 
 var url= "http://congress.api.sunlightfoundation.com/legislators/"
 //legislators?apikey=[your_api_key]
@@ -43,44 +46,6 @@ var apiKey="325ade0da4514bb29ff036144a8bc016"
 function app() {
 
 	//////////// Views
-
-	var Header = React.createClass ({
-		render: function() {
-			return (
-				<div className="header">
-					<h1>CONGRESSIONAL CUTIES!!!</h1>
-					<div className="navBar">
-						<a href="#allcuties">See All</a>
-						<a href="#favorites">See Faves</a>
-					</div>
-				</div>
-				)
-		}
-	})
-
-	var CutiesView = React.createClass ({
-		render: function() {
-			return (
-				<div className="cutiesView">
-					<Header />
-					<p>Now Viewing All Cuties</p>
-				</div>
-				)
-		}
-	})
-
-	var FavesView = React.createClass ({
-		render: function() {
-			return (
-				<div className="cutiesView">
-					<Header />
-					<p>Now Viewing All Your Fave Cuties</p>
-				</div>
-				)
-		}
-	})
-
-
 
 	//////////// Router
 	var CongressionalRouter = Backbone.Router.extend ({

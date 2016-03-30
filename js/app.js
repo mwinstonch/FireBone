@@ -20,55 +20,67 @@ import fetch from "isomorphic-fetch"
 //     })
 // }
 
-// Check for ServiceWorker support before trying to install it
-// if ('serviceWorker' in navigator) {
-//     navigator.serviceWorker.register('./serviceworker.js').then(() => {
-//         // Registration was successful
-//         console.info('registration success')
-//     }).catch(() => {
-//         console.error('registration failed')
-//             // Registration failed
-//     })
-// } else {
-//     // No ServiceWorker Support
-// }
-
 import DOM from 'react-dom'
 import React, {Component} from 'react'
 import Backbone from 'bbfire'
-import CutiesView from "./cutiesView"
-import FavesView from "./favesView"
+import CutiesView from './cutiesView'
+import FavesView from './favesView'
 
 
-var url= "http://congress.api.sunlightfoundation.com/legislators/"
-//legislators?apikey=[your_api_key]
-var apiKey="325ade0da4514bb29ff036144a8bc016"
 function app() {
+   // start app
+   // new Router()
+    var FavCutiesCollection = Backbone.Firebase.Collection.extend({
+   		url: "https://congressionalcuties.firebaseio.com/favecuties"
+    })
 
-	//////////// Views
+    var CutieModel = Backbone.Model.extend({
+    	defaults:{
+    		'fave': false
+    	}
+    })
 
-	//////////// Router
-	var CongressionalRouter = Backbone.Router.extend ({
-		routes: {
-			"favorites" : "handleFaves",
-			"*default"  : "handleCuties"
-		},
+    var CongressionalCollection = Backbone.Collection.extend ({
+      url: 'http://congress.api.sunlightfoundation.com/legislators',
+      apiKey:"325ade0da4514bb29ff036144a8bc016",
 
-		handleFaves: function() {
-    		DOM.render(<FavesView />, document.querySelector('.container'))
-		},
+      parse: function (rawData){
+        console.log(rawData)
+        return rawData.results
+      },
 
-		handleCuties: function() {
-    		DOM.render(<CutiesView />, document.querySelector('.container'))
-		},
+      model: CutieModel,
 
-		initialize: function() {
-			Backbone.history.start()
-		}
-	})
+    })
 
-	var rtr = new CongressionalRouter()
+    var CongressionalRouter = Backbone.Router.extend ({
+        routes: {
+            "favorites": "handleFaves",
+            "*default": "handleCuties"
+        },
 
+        handleCuties: function() {
+            var cc = new CongressionalCollection()
+            var fc = new FavCutiesCollection()
+            cc.fetch({
+              data:{
+                "apikey": cc.apiKey
+              }
+            }).then(function(){
+              DOM.render(<CutiesView cutieType="all" faveColl={fc} congressColl={cc}/>, document.querySelector('.container'))
+            })
+        },
+
+        handleFaves: function() {
+            DOM.render(<CutiesView congressColl={new FavCutiesCollection} cutieType="fave" />, document.querySelector('.container'))
+        },
+
+        initialize: function() {
+            Backbone.history.start() 
+        }
+    })
+
+    var cr = new CongressionalRouter()
 }
 
 app()
